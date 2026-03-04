@@ -28,6 +28,7 @@
 				<h6 class="title">Categories</h6>
 			</a>
 		</header>
+		{% comment %} product content {% endcomment %}
 		<div class="filter-content collapse show" id="collapse_1" style="">
 			<div class="card-body">
 				
@@ -143,7 +144,7 @@
 
         <figcaption class="info-wrap">
             <div class="fix-height">
-                <a href="#" class="title">{{ prd.product_name }}</a>
+                <a href="{{prd.get_url}}" class="title">{{ prd.product_name }}</a>
 
                 <div class="price-wrap mt-2">
                     <span class="price">${{ prd.price }}</span>
