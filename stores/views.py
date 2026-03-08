@@ -2,6 +2,7 @@ from django.shortcuts import render
 from category.models import Category
 from stores.models import Products
 from django.shortcuts import render,get_object_or_404
+from django.core.paginator import Paginator
 
 # Create your views here.
 
@@ -18,12 +19,20 @@ def store(request, category_slug=None):
         products = Products.objects.filter(is_available=True)
         product_count = products.count()
 
+        # pagination
+        pagi_products = Products.objects.filter(is_available = True)
+        paginator = Paginator(pagi_products,6)
+        page = request.GET.get('page')
+        paged_products = paginator.get_page(page)
+        
     categories = Category.objects.all()
     
+
     context = {
         "categories_all": categories,
         "products": products,
         "product_count": product_count,
+        "paged_products" : paged_products,
     }
 
     return render(request, "store.html", context)
