@@ -3,36 +3,34 @@ from category.models import Category
 from stores.models import Products
 from django.shortcuts import render,get_object_or_404
 from django.core.paginator import Paginator
+from django.db.models import Q
 
 # Create your views here.
 
 def store(request, category_slug=None):
 
-    if category_slug != None:
-        # show products according to category slug
-        categories = get_object_or_404(Category, slug=category_slug)
-        products = Products.objects.filter(category=categories, is_available=True)
-        product_count = products.count()
-
+    # filter products by category if slug exists
+    if category_slug:
+        category = get_object_or_404(Category, slug=category_slug)
+        products = Products.objects.filter(category=category, is_available=True)
     else:
-        categories = Category.objects.all()
         products = Products.objects.filter(is_available=True)
-        product_count = products.count()
 
-        # pagination
-        pagi_products = Products.objects.filter(is_available = True)
-        paginator = Paginator(pagi_products,6)
-        page = request.GET.get('page')
-        paged_products = paginator.get_page(page)
-        
+    # product count
+    product_count = products.count()
+
+    # pagination
+    paginator = Paginator(products, 6)   # 6 products per page
+    page = request.GET.get('page')
+    paged_products = paginator.get_page(page)
+
+    # get all categories for sidebar/menu
     categories = Category.objects.all()
-    
 
     context = {
         "categories_all": categories,
-        "products": products,
+        "products": paged_products,
         "product_count": product_count,
-        "paged_products" : paged_products,
     }
 
     return render(request, "store.html", context)
@@ -50,3 +48,26 @@ def product_detail(request , category_slug,product_slug):
         'single_product' : single_product,
     }
     return render(request, 'store/product_detail.html', context)
+
+def search(request):
+
+    products = None
+    product_count = 0
+
+    if 'keyword' in request.GET:
+        keyword = request.GET.get('keyword')
+
+        if keyword:
+            products = Products.objects.order_by('-created_date').filter(
+                Q(description__icontains=keyword) |
+                Q(product_name__icontains=keyword)
+            )
+
+            product_count = products.count()
+
+    context = {
+        'products': products,
+        'product_count': product_count,
+    }
+
+    return render(request, 'store.html', context)

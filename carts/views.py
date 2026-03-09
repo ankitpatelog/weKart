@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from . models import Cart,CartItem
-from stores.models import Products
+from stores.models import Products,Variation
 from django.shortcuts import redirect,get_object_or_404
 
 
@@ -16,10 +16,26 @@ def get_cart_id(request):
 
 
 def add_cart(request,product_id):
+    
+    product = Products.objects.get(id=product_id)
+    product_variation = []
+    
+    # handle post request from variaton form so get the color and sizes
+    if request.method == 'POST':
+        for item in request.POST:
+            key = item
+            value = request.POST[key]
+            
+            # for each value of color and size , we get the variation from database and put it inot the cart_item model
+            try:
+              variation = Variation.objects.get(product = product,variation_category__icontains = key,variation_value__icontains = value)
+              product_variation.append(variation)
+            except Variation.DoesNotExist:
+              pass
+            
     # fucntion of this function
     # this add_cart add the porduct into the available cart or new cart 
     
-    product = Products.objects.get(id=product_id)
     
     # get the current cart form session or make the new one if not available
     try:
@@ -35,6 +51,11 @@ def add_cart(request,product_id):
     try:
     #   now get the clicked product and increment its quantity by 1
         cart_item = CartItem.objects.get(product = product,cart = cart)
+        
+        if len(product_variation) >1:
+            for item in product_variation:
+                cart_item.variations.add(item)
+                
         cart_item.quantity +=1
         cart_item.save()
     except CartItem.DoesNotExist:
@@ -44,6 +65,11 @@ def add_cart(request,product_id):
             cart = cart,
             quantity = 1
         )
+        
+        if len(product_variation) >1:
+            for item in product_variation:
+                cart_item.variations.add(item)
+                
         cart_item.save()
     
     # print(cart_item.product)
