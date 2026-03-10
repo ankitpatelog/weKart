@@ -40,14 +40,19 @@ variaton_category_variatioin = (
 
 # we are making the variation manager class when the frontend ,we want to show the color and size of each product then from color method inside the class we get all the 
 # values of particular color and if active or not and  show into the frontend using the method when we call it
-
 class VariationManager(models.Manager):
+
     def colors(self):
-        return super(self,VariationManager).filter(variation_category = 'color', is_active="True")
+        return super().filter(
+            variation_category='color',
+            is_active=True
+        )
 
-    def size(self):
-        return super(self,VariationManager).filter(variaton_category = 'size', is_active="True")
-
+    def sizes(self):
+        return super().filter(
+            variation_category='size',
+            is_active=True
+        )
     
 class Variation(models.Model):
     product             = models.ForeignKey(Products,on_delete=models.CASCADE)

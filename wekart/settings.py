@@ -130,3 +130,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # django use this as defalut user model
 AUTH_USER_MODEL = 'accounts.Accounts'
+
+
+from django.contrib.messages import constants as messages
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger',
+}
