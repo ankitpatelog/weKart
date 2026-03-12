@@ -20,7 +20,7 @@ class MyAccountManager(BaseUserManager):
         )
 
         user.set_password(password)
-        user.is_active = True   # make user active by default
+        user.is_active = False   # make user active by default
         user.save(using=self._db)
         return user
 
